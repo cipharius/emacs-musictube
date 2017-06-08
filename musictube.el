@@ -1,4 +1,4 @@
-;; Emacs-musictube - Search and play YouTube music videos with emacs 
+;; Emacs-musictube - Search and play YouTube music videos with emacs
 ;; Copyright (C) 2017 Valts Liepiņš <valts@tase.lv>
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,8 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (require 'helm)
+;; For now using load-file
+(load-file "vlc.el")
 
 (defvar musictube-search-cache '()
   "Variable for caching YouTube search results")
@@ -43,42 +45,6 @@
     ;; Else, return CDR of alist
     (cdr alist)))
 
-;; VLC ;;
-;;=====;;
-
-(defun vlc-get-process ()
-  "Find or start a vlc process"
-  (let ((process (get-process "vlc")))
-    (if process
-        process
-      (let ((vlc-process (start-process "vlc" "*vlc*" "rvlc"
-                                        "--no-video"
-                                        ; Give plenty of buffer space
-                                        "--network-caching" "10000")))
-        (accept-process-output vlc-process)
-        vlc-process))))
-
-(defun vlc-play-track (track)
-  "Play the TRACK"
-  (process-send-string (vlc-get-process)
-                       (format "add %s\n" track)))
-
-(defun vlc-enqueue-track (track)
-  "Enqueue the TRACK"
-  (process-send-string (vlc-get-process)
-                       (format "enqueue %s\n" track)))
-
-(defun vlc-is-playing ()
-  "Retrieve VLC play state"
-  (let ((vlc-process (vlc-get-process)))
-    (process-send-string vlc-process "is_playing\n")
-    ;; Wait for output
-    (accept-process-output vlc-process)
-    (with-current-buffer (process-buffer vlc-process)
-      (goto-char (point-max))
-      (search-backward-regexp "\\([[:digit:]]\\)")
-      (string-equal (match-string 1) "1"))))
-
 ;; Musictube ;;
 ;;===========;;
 
@@ -104,7 +70,8 @@
 
 (defun musictube-play-item (item &optional enqueue)
   "Play item with VLC"
-  (let ((track (format "https://www.youtube.com/watch?v=%s" (alist-deep-get '(id videoId) item)))) (vlc-play-track track)))
+  (let ((track (format "https://www.youtube.com/watch?v=%s" (alist-deep-get '(id videoId) item))))
+    (vlc-play-track track)))
 
 (defun musictube-queue-item (item)
   "Queue or play item with VLC"

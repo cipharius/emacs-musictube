@@ -46,3 +46,26 @@
       (goto-char (point-max))
       (search-backward-regexp "\\([[:digit:]]\\)")
       (string-equal (match-string 1) "1"))))
+
+(defun vlc-parse-playlist-item(item &optional id)
+  "Parse ITEM and return alist with song metadata. Optionally take playlist item's ID."
+  (if (string-match "\\(.+\\) - \\(.+\\) (\\(.+\\)) \\[played \\(.+\\) times?\\]" item)
+      (list (cons 'raw-title item)
+            (cons 'author (match-string 1 item))
+            (cons 'title (match-string 2 item))
+            (cons 'duration (match-string 3 item))
+            (cons 'play-count (match-string 4 item)))
+    (list (cons 'raw-title item))))
+
+(defun vlc-get-playlist ()
+  (let ((vlc-process (vlc-get-process)))
+    (process-send-string vlc-process "playlist\n")
+    ;; Wait for output
+    (accept-process-output vlc-process)
+    (with-current-buffer (process-buffer vlc-process)
+      (goto-char (point-max))
+      ;; Find the beginning of playlist
+      (search-backward "- Playlist")
+      (loop do (search-forward-regexp "\\([[:digit:]]+\\) - \\([^[:cntrl:]]+\\)")
+            until (equal (match-string 2) "Media Library")
+            collect (vlc-parse-playlist-item (match-string 2) (match-string 1))))))

@@ -124,11 +124,11 @@
 (defun helm-musictube-search ()
   (let ((cache-matches (length (musictube-filter-items helm-pattern
                          musictube-search-cache))))
+    ;; YouTube search API calls are expensive, cache when possible
     (if (and (> (length helm-pattern) 4)
              (> (- (time-to-seconds) musictube-last-search) 0.5)
              (< cache-matches 1))
         (progn
-          (message helm-pattern)
           (setq musictube-last-search (time-to-seconds)
                 musictube-search-cache (musictube-search-formatted helm-pattern)))
       musictube-search-cache)))

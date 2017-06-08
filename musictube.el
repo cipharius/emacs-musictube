@@ -18,6 +18,7 @@
 
 (defvar musictube-search-cache '()
   "Variable for caching YouTube search results")
+
 (defvar musictube-last-search 0
   "Determins whether there is ongoing search request")
 
@@ -117,9 +118,8 @@
                 (when (helm-mm-match key query) 't))
               alist))
 
-;; HELM STUFF ;;
-;;============;;
-
+;; HELM ;;
+;;======;;
 
 (defun helm-musictube-search ()
   (let ((cache-matches (length (musictube-filter-items helm-pattern
@@ -132,7 +132,6 @@
           (setq musictube-last-search (time-to-seconds)
                 musictube-search-cache (musictube-search-formatted helm-pattern)))
       musictube-search-cache)))
-
 
 (defun helm-musictube-actions-for-item (actions item)
   `((,(format "Queue and play: %s" (alist-deep-get '(snippet title) item)) . musictube-queue-item)

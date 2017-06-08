@@ -117,9 +117,6 @@
                 (when (helm-mm-match key query) 't))
               alist))
 
-(defun musictube-match-all (candidate)
-  t)
-
 ;; HELM STUFF ;;
 ;;============;;
 
@@ -147,7 +144,7 @@
   (helm :sources (helm-build-async-source "Musictube"
                      :candidates-process 'helm-musictube-search
                      :action-transformer 'helm-musictube-actions-for-item
-                     :match 'musictube-match-all
+                     :match 'helm-mm-match
                      :volatile t
                      :multiline t))
   :buffer "*helm-musictube*")

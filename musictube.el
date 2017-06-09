@@ -16,7 +16,7 @@
 
 (require 'helm)
 ;; For now using load-file
-(load-file "vlc.el")
+(load-file (concat (file-name-directory load-file-name) "vlc.el"))
 
 (defvar musictube-search-cache '()
   "Variable for caching YouTube search results")
@@ -24,10 +24,11 @@
 (defvar musictube-last-search 0
   "Determins whether there is ongoing search request")
 
-(defvar musictube-youtube-api-key (when (file-exists-p ".yt-api-key")
-                          (with-temp-buffer
-                            (insert-file-contents ".yt-api-key")
-                            (buffer-string)))
+(defvar musictube-youtube-api-key (let ((key (concat (file-name-directory load-file-name) ".yt-api-key")))
+                                    (when (file-exists-p key)
+                                      (with-temp-buffer
+                                        (insert-file-contents key)
+                                        (buffer-string))))
   "Youtube API key for querying videos")
 
 ;; Utils ;;
